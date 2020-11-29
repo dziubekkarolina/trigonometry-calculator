@@ -2,30 +2,33 @@ package pl.polsl.karolinadziubek;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+
+import pl.polsl.karolinadziubek.MathematicalExpressionParser;
 
 public class TrigonometryCalculator extends JFrame implements ActionListener
 {
-    
-    JPanel[] rows = new JPanel[6];
+    JPanel[] rows = new JPanel[7];
     Map<CalculatorButton, JButton> buttons = new HashMap<>();
-
+    Map<JButton, ButtonDescription> buttonsDescriptions = new HashMap<>();
 
     Dimension displayDimension = new Dimension(ComponentSizes.XXL, ComponentSizes.XS);
     Dimension regularButtonDimension = new Dimension(ComponentSizes.M, ComponentSizes.S);
-    Dimension zeroButtonDimension = new Dimension(ComponentSizes.M, ComponentSizes.S);
 
-    JLabel display = new JLabel();
+    JTextPane display = new JTextPane();
     Font font = new Font("Segoe UI", Font.PLAIN, 14);
 
     TrigonometryCalculator()
     {
         super("Trigonometry Calculator");
         setDesign();
-        setSize(320, 300);
+        setSize(330, 330);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         GridLayout grid = new GridLayout(rows.length,4);
@@ -33,6 +36,7 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         FlowLayout f1 = new FlowLayout(FlowLayout.CENTER);
         FlowLayout f2 = new FlowLayout(FlowLayout.CENTER,1,1);
         initializeButtonLabels();
+        initializeButtonValues();
         for(int i = 0; i < rows.length; i++)
             rows[i] = new JPanel();
 
@@ -63,25 +67,66 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         ButtonLabels.put(CalculatorButton.COSINUS, "Cos");
         ButtonLabels.put(CalculatorButton.TANGENS, "Tan");
         ButtonLabels.put(CalculatorButton.COTANGENS, "Cot");
+        ButtonLabels.put(CalculatorButton.OPEN_BRACKET, "(");
+        ButtonLabels.put(CalculatorButton.CLOSE_BRACKET, ")");
+        ButtonLabels.put(CalculatorButton.MULTIPLICATION, "*");
+        ButtonLabels.put(CalculatorButton.DIVISION, "/");
+        ButtonLabels.put(CalculatorButton.ADDITION, "+");
+        ButtonLabels.put(CalculatorButton.SUBTRACTION, "-");
+        ButtonLabels.put(CalculatorButton.PI, "π");
+        ButtonLabels.put(CalculatorButton.POWER, "^");
+        ButtonLabels.put(CalculatorButton.PARAMETER, "x");
+        ButtonLabels.put(CalculatorButton.EQUALITY, "=");
+    }
+    private void initializeButtonValues(){
+        ButtonValues.put(CalculatorButton.ZERO, "0");
+        ButtonValues.put(CalculatorButton.ONE, "1");
+        ButtonValues.put(CalculatorButton.TWO, "2");
+        ButtonValues.put(CalculatorButton.THREE, "3");
+        ButtonValues.put(CalculatorButton.FOUR, "4");
+        ButtonValues.put(CalculatorButton.FIVE, "5");
+        ButtonValues.put(CalculatorButton.SIX, "6");
+        ButtonValues.put(CalculatorButton.SEVEN, "7");
+        ButtonValues.put(CalculatorButton.EIGHT, "8");
+        ButtonValues.put(CalculatorButton.NINE, "9");
+        ButtonValues.put(CalculatorButton.NEGATION, "-(");
+        ButtonValues.put(CalculatorButton.DECIMAL_POINT, ".");
+        ButtonValues.put(CalculatorButton.SINUS, "sin(");
+        ButtonValues.put(CalculatorButton.COSINUS, "cos(");
+        ButtonValues.put(CalculatorButton.TANGENS, "tan(");
+        ButtonValues.put(CalculatorButton.COTANGENS, "cot(");
+        ButtonValues.put(CalculatorButton.OPEN_BRACKET, "(");
+        ButtonValues.put(CalculatorButton.CLOSE_BRACKET, ")");
+        ButtonValues.put(CalculatorButton.MULTIPLICATION, "*");
+        ButtonValues.put(CalculatorButton.DIVISION, "/");
+        ButtonValues.put(CalculatorButton.ADDITION, "+");
+        ButtonValues.put(CalculatorButton.SUBTRACTION, "-");
+        ButtonValues.put(CalculatorButton.PI, "π");
+        ButtonValues.put(CalculatorButton.POWER, "^");
+        ButtonValues.put(CalculatorButton.PARAMETER, "x");
     }
     private void initializeButtons(){
-        ButtonLabels.forEach((key, value) -> {
+        ButtonLabels.forEach((k, v) -> {
             JButton button = new JButton();
-            button.setText(value);
+            button.setText(v);
             button.setFont(font);
             button.addActionListener(this);
             button.setPreferredSize(regularButtonDimension);
-            buttons.put(key, button);
+            buttons.put(k, button);
+            String label = ButtonLabels.get(k);
+            String value = ButtonValues.get(k);
+            buttonsDescriptions.put(button, new ButtonDescription(k, label, value));
         });
     }
     private void setupLayout(){
         display.setFont(font);
         display.setOpaque(true);
+        display.setEditable(false);
         display.setBackground(Color.WHITE);
-        display.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         display.setPreferredSize(displayDimension);
-
-        buttons.get(CalculatorButton.ZERO).setPreferredSize(zeroButtonDimension);
+        SimpleAttributeSet attr = new SimpleAttributeSet();
+        StyleConstants.setAlignment(attr, StyleConstants.ALIGN_RIGHT);
+        display.setParagraphAttributes(attr, true);
 
         rows[0].add(display);
         add(rows[0]);
@@ -89,30 +134,42 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         rows[1].add(buttons.get(CalculatorButton.SEVEN));
         rows[1].add(buttons.get(CalculatorButton.EIGHT));
         rows[1].add(buttons.get(CalculatorButton.NINE));
+        rows[1].add(buttons.get(CalculatorButton.ADDITION));
         rows[1].add(buttons.get(CalculatorButton.DELETE));
         add(rows[1]);
 
         rows[2].add(buttons.get(CalculatorButton.FOUR));
         rows[2].add(buttons.get(CalculatorButton.FIVE));
         rows[2].add(buttons.get(CalculatorButton.SIX));
+        rows[2].add(buttons.get(CalculatorButton.SUBTRACTION));
         rows[2].add(buttons.get(CalculatorButton.CLEAR));
         add(rows[2]);
 
         rows[3].add(buttons.get(CalculatorButton.ONE));
         rows[3].add(buttons.get(CalculatorButton.TWO));
         rows[3].add(buttons.get(CalculatorButton.THREE));
+        rows[3].add(buttons.get(CalculatorButton.MULTIPLICATION));
         rows[3].add(buttons.get(CalculatorButton.NEGATION));
         add(rows[3]);
 
         rows[4].add(buttons.get(CalculatorButton.ZERO));
+        rows[4].add(buttons.get(CalculatorButton.OPEN_BRACKET));
+        rows[4].add(buttons.get(CalculatorButton.CLOSE_BRACKET));
+        rows[4].add(buttons.get(CalculatorButton.DIVISION));
         rows[4].add(buttons.get(CalculatorButton.DECIMAL_POINT));
         add(rows[4]);
 
-        rows[5].add(buttons.get(CalculatorButton.SINUS));
-        rows[5].add(buttons.get(CalculatorButton.COSINUS));
-        rows[5].add(buttons.get(CalculatorButton.TANGENS));
-        rows[5].add(buttons.get(CalculatorButton.COTANGENS));
+        rows[5].add(buttons.get(CalculatorButton.POWER));
+        rows[5].add(buttons.get(CalculatorButton.PARAMETER));
+        rows[5].add(buttons.get(CalculatorButton.PI));
+        rows[5].add(buttons.get(CalculatorButton.EQUALITY));
         add(rows[5]);
+
+        rows[6].add(buttons.get(CalculatorButton.SINUS));
+        rows[6].add(buttons.get(CalculatorButton.COSINUS));
+        rows[6].add(buttons.get(CalculatorButton.TANGENS));
+        rows[6].add(buttons.get(CalculatorButton.COTANGENS));
+        add(rows[6]);
 
         setVisible(true);
     }
@@ -125,11 +182,8 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         try
         {
             String currentValue = display.getText();
-            if ((currentValue != null) && (currentValue.length() > 0)) {
+            if ((currentValue != null) && (currentValue.length() > 0))
                 currentValue = currentValue.substring(0, currentValue.length() - 1);
-            }
-            if(!isNumeric(currentValue))
-                currentValue = "";
             display.setText(currentValue);
         }
         catch(NumberFormatException e)
@@ -139,37 +193,6 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
     }
     {
         display.setText("");
-    }
-
-    public void getPosNeg() 
-    {
-        try 
-        {
-            String currentValue = display.getText();
-            double value = Double.parseDouble(currentValue) * -1;
-            currentValue = currentValue.contains(".") ? Double.toString(value) : Integer.toString((int)value);
-            display.setText(currentValue);
-        }
-        catch(NumberFormatException e) 
-        {
-        	display.setText("Negating failed");
-        }
-    }
-
-    public void addDecimalPoint(){
-        try
-        {
-            String currentValue = display.getText();
-            if(currentValue.isEmpty())
-                append("0");
-            if(currentValue.contains("."))
-                return;
-            append(".");
-        }
-        catch(NumberFormatException e)
-        {
-            display.setText("Putting decimal point failed");
-        }
     }
     
     public final void setDesign() {
@@ -182,57 +205,26 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
             }
         } catch (Exception e) { }
     }
-    
     @Override
     public void actionPerformed(ActionEvent ae) 
     {
-        if(!isNumeric(display.getText()))
-            display.setText("");
-        if(ae.getSource() == buttons.get(CalculatorButton.SEVEN))
-            append("7");
-        else if(ae.getSource() == buttons.get(CalculatorButton.EIGHT))
-            append("8");
-        else if(ae.getSource() == buttons.get(CalculatorButton.NINE))
-            append("9");
-        else if(ae.getSource() == buttons.get(CalculatorButton.DELETE))
-            deleteLastDigit();
-        else if(ae.getSource() == buttons.get(CalculatorButton.CLEAR))
-            clear();
-        else if(ae.getSource() == buttons.get(CalculatorButton.FOUR))
-            append("4");
-        else if(ae.getSource() == buttons.get(CalculatorButton.FIVE))
-            append("5");
-        else if(ae.getSource() == buttons.get(CalculatorButton.SIX))
-            append("6");
-        else if(ae.getSource() == buttons.get(CalculatorButton.NEGATION))
-            getPosNeg();
-        else if(ae.getSource() == buttons.get(CalculatorButton.ONE))
-            append("1");
-        else if(ae.getSource() == buttons.get(CalculatorButton.TWO))
-            append("2");
-        else if(ae.getSource() == buttons.get(CalculatorButton.THREE))
-            append("3");
-        else if(ae.getSource() == buttons.get(CalculatorButton.DECIMAL_POINT))
-            addDecimalPoint();
-        else if(ae.getSource() == buttons.get(CalculatorButton.ZERO)){
-            if(!display.getText().equals("0"))
-                append("0");
+        JButton source = (JButton) ae.getSource();
+        String value = buttonsDescriptions.get(source).value;
+        if(value != null && !value.isEmpty()){
+            append(value);
         }
-        else if(ae.getSource() == buttons.get(CalculatorButton.SINUS))
-            executeTrigonometricOperation(TrigonometricOperation.SINUS);
-        else if(ae.getSource() == buttons.get(CalculatorButton.COSINUS))
-            executeTrigonometricOperation(TrigonometricOperation.COSINUS);
-        else if(ae.getSource() == buttons.get(CalculatorButton.TANGENS))
-            executeTrigonometricOperation(TrigonometricOperation.TANGENS);
-        else if(ae.getSource() == buttons.get(CalculatorButton.COTANGENS))
-            executeTrigonometricOperation(TrigonometricOperation.COTANGENS);
-    }
-    private static Pattern pattern = Pattern.compile("-?\\d+(\\.\\d*)?");
-
-    public static boolean isNumeric(String value) {
-        if (value == null)
-            return false;
-        return pattern.matcher(value).matches();
+        else if(source == buttons.get(CalculatorButton.DELETE))
+            deleteLastDigit();
+        else if(source == buttons.get(CalculatorButton.CLEAR))
+            clear();
+        else if(source == buttons.get(CalculatorButton.EQUALITY)){
+            try{
+                double result = MathematicalExpressionParser.eval(display.getText(), 10);
+                display.setText(String.valueOf(result));
+            }catch (Exception e){
+                int a = 12;
+            }
+        }
     }
 
     public void append(String suffix){
@@ -246,26 +238,6 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         public static final int L = 90;
         public static final int XL = 100;
         public static final int XXL = 300;
-    }
-    public enum CalculatorButton{
-        ZERO,
-        ONE,
-        TWO,
-        THREE,
-        FOUR,
-        FIVE,
-        SIX,
-        SEVEN,
-        EIGHT,
-        NINE,
-        CLEAR,
-        DELETE,
-        NEGATION,
-        DECIMAL_POINT,
-        SINUS,
-        COSINUS,
-        TANGENS,
-        COTANGENS
     }
 
     public enum TrigonometricOperation {
@@ -303,10 +275,53 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
                 throw new UnsupportedOperationException();
         }
     }
+
     public static Map<CalculatorButton, String> ButtonLabels  = new HashMap<>();
+    public static Map<CalculatorButton, String> ButtonValues  = new HashMap<>();
 
     public static void main(String[] arguments)
     {
         TrigonometryCalculator c = new TrigonometryCalculator();
     }
+}
+enum CalculatorButton{
+    ZERO,
+    ONE,
+    TWO,
+    THREE,
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    CLEAR,
+    DELETE,
+    NEGATION,
+    DECIMAL_POINT,
+    SINUS,
+    COSINUS,
+    TANGENS,
+    COTANGENS,
+    OPEN_BRACKET,
+    CLOSE_BRACKET,
+    DIVISION,
+    MULTIPLICATION,
+    ADDITION,
+    SUBTRACTION,
+    PI,
+    POWER,
+    PARAMETER,
+    EQUALITY
+}
+
+class ButtonDescription {
+    public ButtonDescription(CalculatorButton calculatorButton, String label, String value){
+        this.calculatorButton = calculatorButton;
+        this.label = label;
+        this.value = value;
+    }
+    CalculatorButton calculatorButton;
+    String label;
+    String value;
 }

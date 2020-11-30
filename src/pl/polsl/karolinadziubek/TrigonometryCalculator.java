@@ -8,9 +8,6 @@ import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.regex.Pattern;
-
-import pl.polsl.karolinadziubek.MathematicalExpressionParser;
 
 public class TrigonometryCalculator extends JFrame implements ActionListener
 {
@@ -219,8 +216,8 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
             clear();
         else if(source == buttons.get(CalculatorButton.EQUALITY)){
             try{
-                double result = MathematicalExpressionParser.eval(display.getText(), 10);
-                display.setText(String.valueOf(result));
+                Function<Double, Double> func = MathematicalExpressionParser.eval(display.getText());
+                display.setText(String.valueOf(func.apply(1.0)));
             }catch (Exception e){
                 int a = 12;
             }
@@ -238,42 +235,6 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         public static final int L = 90;
         public static final int XL = 100;
         public static final int XXL = 300;
-    }
-
-    public enum TrigonometricOperation {
-        SINUS,
-        COSINUS,
-        TANGENS,
-        COTANGENS
-    }
-
-    public void executeTrigonometricOperation(TrigonometricOperation operation){
-        try
-        {
-            double value = Double.parseDouble(display.getText());
-            value = calculateTrigonometricFunction(value, operation);
-            display.setText(Double.toString(value));
-        }
-        catch(Exception e)
-        {
-            display.setText("Enter number");
-        }
-
-    }
-
-    public double calculateTrigonometricFunction(double value, TrigonometricOperation operation){
-        switch (operation){
-            case SINUS:
-                return Math.sin(value);
-            case COSINUS:
-                return Math.cos(value);
-            case TANGENS:
-                return Math.tan(value);
-            case COTANGENS:
-                return 1/Math.tan(value);
-            default:
-                throw new UnsupportedOperationException();
-        }
     }
 
     public static Map<CalculatorButton, String> ButtonLabels  = new HashMap<>();

@@ -2,30 +2,38 @@ package pl.polsl.karolinadziubek;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.text.NumberFormatter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.event.*;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 public class TrigonometryCalculator extends JFrame implements ActionListener
 {
-    JPanel[] rows = new JPanel[7];
+    JPanel[] rows = new JPanel[9];
     Map<CalculatorButton, JButton> buttons = new HashMap<>();
     Map<JButton, ButtonDescription> buttonsDescriptions = new HashMap<>();
 
     Dimension displayDimension = new Dimension(ComponentSizes.XXL, ComponentSizes.XS);
     Dimension regularButtonDimension = new Dimension(ComponentSizes.M, ComponentSizes.S);
+    Dimension inputDimension = new Dimension(ComponentSizes.L, ComponentSizes.XS);
 
     JTextPane display = new JTextPane();
     Font font = new Font("Segoe UI", Font.PLAIN, 14);
+    GraphWindow graphWindow;
 
+    JFormattedTextField fieldMinX;
+    JFormattedTextField fieldMaxX;
+    JFormattedTextField fieldMinY;
+    JFormattedTextField fieldMaxY;
     TrigonometryCalculator()
     {
         super("Trigonometry Calculator");
         setDesign();
-        setSize(330, 330);
+        setSize(330, 400);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         GridLayout grid = new GridLayout(rows.length,4);
@@ -43,6 +51,7 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
             rows[i].setLayout(f2);
         initializeButtons();
         setupLayout();
+        this.graphWindow = new GraphWindow();
     }
 
     private void initializeButtonLabels(){
@@ -125,6 +134,26 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         StyleConstants.setAlignment(attr, StyleConstants.ALIGN_RIGHT);
         display.setParagraphAttributes(attr, true);
 
+        NumberFormat format = NumberFormat.getInstance();
+        NumberFormatter formatter = new NumberFormatter(format);
+        formatter.setValueClass(Double.class);
+        formatter.setMaximum(Double.MAX_VALUE);
+
+        fieldMinX = new JFormattedTextField(formatter);
+        fieldMaxX = new JFormattedTextField(formatter);
+        fieldMinY = new JFormattedTextField(formatter);
+        fieldMaxY = new JFormattedTextField(formatter);
+
+        fieldMinX.setPreferredSize(inputDimension);
+        fieldMaxX.setPreferredSize(inputDimension);
+        fieldMinY.setPreferredSize(inputDimension);
+        fieldMaxY.setPreferredSize(inputDimension);
+
+        fieldMinX.setValue(-10.0);
+        fieldMaxX.setValue(10.0);
+        fieldMinY.setValue(-10.0);
+        fieldMaxY.setValue(10.0);
+
         rows[0].add(display);
         add(rows[0]);
 
@@ -167,6 +196,18 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
         rows[6].add(buttons.get(CalculatorButton.TANGENS));
         rows[6].add(buttons.get(CalculatorButton.COTANGENS));
         add(rows[6]);
+
+        rows[7].add(new JLabel("Min X:"));
+        rows[7].add(fieldMinX);
+        rows[7].add(new JLabel("Max X:"));
+        rows[7].add(fieldMaxX);
+        add(rows[7]);
+
+        rows[8].add(new JLabel("Min Y:"));
+        rows[8].add(fieldMinY);
+        rows[8].add(new JLabel("Max Y:"));
+        rows[8].add(fieldMaxY);
+        add(rows[8]);
 
         setVisible(true);
     }
@@ -216,8 +257,14 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
             clear();
         else if(source == buttons.get(CalculatorButton.EQUALITY)){
             try{
-                Function<Double, Double> func = MathematicalExpressionParser.eval(display.getText());
-                display.setText(String.valueOf(func.apply(1.0)));
+                String functionLiteral = display.getText();
+                Function<Double, Double> function = MathematicalExpressionParser.eval(functionLiteral);
+                graphWindow.graph.setGraphBoundaries(
+                        (double)fieldMinX.getValue(),
+                        (double)fieldMaxX.getValue(),
+                        (double)fieldMinY.getValue(),
+                        (double)fieldMaxY.getValue());
+                graphWindow.graph.setFunction(function, functionLiteral);
             }catch (Exception e){
                 int a = 12;
             }
@@ -240,10 +287,6 @@ public class TrigonometryCalculator extends JFrame implements ActionListener
     public static Map<CalculatorButton, String> ButtonLabels  = new HashMap<>();
     public static Map<CalculatorButton, String> ButtonValues  = new HashMap<>();
 
-    public static void main(String[] arguments)
-    {
-        TrigonometryCalculator c = new TrigonometryCalculator();
-    }
 }
 enum CalculatorButton{
     ZERO,

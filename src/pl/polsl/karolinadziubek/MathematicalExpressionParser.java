@@ -37,8 +37,8 @@ public class MathematicalExpressionParser {
 
             Function<Double, Double> parseExpression() {
                 Function<Double, Double> x = parseTerm();
-                for (;;) {
-                    if      (skip('+')) x = add(x, parseTerm());
+                while(true) {
+                    if (skip('+')) x = add(x, parseTerm());
                     else if (skip('-')) x = subtract(x, parseTerm());
                     else return x;
                 }
@@ -46,7 +46,7 @@ public class MathematicalExpressionParser {
 
             Function<Double, Double> parseTerm() {
                 Function<Double, Double> x = parseFactor();
-                for (;;) {
+                while(true) {
                     if      (skip('*')) x = multiply(x, parseFactor());
                     else if (skip('/')) x = divide(x, parseFactor());
                     else return x;

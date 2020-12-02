@@ -34,11 +34,7 @@ public class Graph extends JPanel {
      * Default parameterless constructor
      */
     public Graph() {
-        setFocusable(true);
-        requestFocusInWindow();
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setMaximumSize(new Dimension(WIDTH, HEIGHT));
 
         bufferedImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         graphics2D = bufferedImage.createGraphics();
@@ -47,7 +43,6 @@ public class Graph extends JPanel {
         windowY = 0.0;
         windowHeight = 2.0;
         windowWidth = 2.0;
-
         functionTextValue = "";
     }
 
@@ -74,8 +69,8 @@ public class Graph extends JPanel {
         graphics2D.setColor(Color.WHITE);
         graphics2D.fillRect(0, 0, WIDTH, HEIGHT);
 
-        List<Double> calculatedValuesX = new ArrayList<>();
-        List<Double> calculatedValueY = new ArrayList<>();
+        List<Integer> calculatedValuesX = new ArrayList<>();
+        List<Integer> calculatedValuesY = new ArrayList<>();
 
         for (int x = 0; x < WIDTH; x++) {
             double currentX = toActualX(x);
@@ -84,21 +79,14 @@ public class Graph extends JPanel {
             if (function != null)
                 currentY = function.apply(currentX);
 
-            double scaledX = x;
-            double scaledY = toPanelY(currentY);
+            int panelY = toPanelY(currentY);
 
-            calculatedValuesX.add(scaledX);
-            calculatedValueY.add(scaledY);
+            calculatedValuesX.add(x);
+            calculatedValuesY.add(panelY);
         }
 
-        int[] displayedValuesX = new int[calculatedValuesX.size()];
-        int[] displayedValuesY = new int[calculatedValueY.size()];
-        for (int i = 0; i < displayedValuesX.length; i++) {
-            displayedValuesX[i] = calculatedValuesX.get(i).intValue();
-        }
-        for (int i = 0; i < displayedValuesY.length; i++) {
-            displayedValuesY[i] = calculatedValueY.get(i).intValue();
-        }
+        int[] displayedValuesX = calculatedValuesX.stream().mapToInt(i->i).toArray();
+        int[] displayedValuesY = calculatedValuesY.stream().mapToInt(i->i).toArray();
 
         graphics2D.setColor(Color.BLACK);
         int xAxisY = toPanelY(0.0);

@@ -2,9 +2,16 @@ package pl.polsl.karolinadziubek;
 
 import javax.swing.*;
 
-public class GraphWindow extends JFrame {
+/**
+ * Represents frame that contains panel in which graph is displayed
+ */
+public class GraphFrame extends JFrame {
     public Graph graph;
-    public GraphWindow(){
+
+    /**
+     * Default parameterless constructor
+     */
+    public GraphFrame(){
         super("Graph");
         graph = new Graph();
         add(graph);

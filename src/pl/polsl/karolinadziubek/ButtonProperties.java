@@ -5,11 +5,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Contains maps of button properties prescribed to button type
+ * Contains maps of button properties assigned to specific buttons
  */
 public class ButtonProperties {
+    /**
+     * Map containing labels assigned to specific buttons
+     */
     public static Map<CalculatorButton, String> ButtonLabels;
+
+    /**
+     * Map containing values assigned to specific buttons
+     */
     public static Map<CalculatorButton, String> ButtonValues;
+
+    /**
+     * Initialization of static maps containing button properties assigned to specific buttons
+     */
     static {
         ButtonLabels = Collections.unmodifiableMap(initializeButtonLabels());
         ButtonValues = Collections.unmodifiableMap(initializeButtonValues());

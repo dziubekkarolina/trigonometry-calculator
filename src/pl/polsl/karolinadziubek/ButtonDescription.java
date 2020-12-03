@@ -15,7 +15,19 @@ public class ButtonDescription {
         this.label = label;
         this.value = value;
     }
+
+    /**
+     * Specific type of button used for distinction
+     */
     CalculatorButton calculatorButton;
+
+    /**
+     * Label displayed for button
+     */
     String label;
+
+    /**
+     * Value represented by button
+     */
     String value;
 }

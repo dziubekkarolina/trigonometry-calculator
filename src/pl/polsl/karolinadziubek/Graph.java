@@ -18,16 +18,39 @@ import javax.swing.JPanel;
  * Represents Panel in which graph is displayed
  */
 public class Graph extends JPanel {
+    /**
+     * Width of displaying area
+     */
     public static final int WIDTH = 1024;
+
+    /**
+     * Height of displaying area
+     */
     public static final int HEIGHT = 768;
 
+    /**
+     * Image buffer
+     */
     private BufferedImage bufferedImage;
+
+    /**
+     * Graphics context
+     */
     private Graphics2D graphics2D;
 
+    /**
+     * Function represented on graph
+     */
     private Function<Double, Double> function;
 
+    /**
+     * helper variables used for determining scopes of displayed axes
+     */
     private double windowX, windowY, windowWidth, windowHeight;
 
+    /**
+     * Text representation of displayed function
+     */
     private String functionTextValue;
 
     /**

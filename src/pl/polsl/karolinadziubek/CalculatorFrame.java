@@ -19,21 +19,65 @@ import static pl.polsl.karolinadziubek.ButtonProperties.ButtonValues;
  */
 public class CalculatorFrame extends JFrame implements ActionListener
 {
-    JPanel[] rows = new JPanel[9];
-    Map<CalculatorButton, JButton> buttons = new HashMap<>();
-    Map<JButton, ButtonDescription> buttonsDescriptions = new HashMap<>();
+    /**
+     * Array of containers used for arranging UI in grid layout
+     */
+    private JPanel[] rows = new JPanel[9];
 
-    Dimension displayDimension = new Dimension(ComponentSizes.XXL, ComponentSizes.XS);
-    Dimension regularButtonDimension = new Dimension(ComponentSizes.M, ComponentSizes.S);
-    Dimension inputDimension = new Dimension(ComponentSizes.L, ComponentSizes.XS);
+    /**
+     * Map of button elements assigned to button type
+     */
+    private Map<CalculatorButton, JButton> buttons = new HashMap<>();
 
-    JTextPane display = new JTextPane();
-    GraphFrame graphFrame;
+    /**
+     * Map of button descriptions assigned to button elements
+     */
+    private Map<JButton, ButtonDescription> buttonsDescriptions = new HashMap<>();
 
-    JFormattedTextField fieldMinX;
-    JFormattedTextField fieldMaxX;
-    JFormattedTextField fieldMinY;
-    JFormattedTextField fieldMaxY;
+    /**
+     * Dimensions of calculator's display
+     */
+    private Dimension displayDimension = new Dimension(ComponentSizes.XXL, ComponentSizes.XS);
+
+    /**
+     * Dimensions of button elements
+     */
+    private Dimension buttonDimension = new Dimension(ComponentSizes.M, ComponentSizes.S);
+
+    /**
+     * dimensions of input elements
+     */
+    private Dimension inputDimension = new Dimension(ComponentSizes.L, ComponentSizes.XS);
+
+    /**
+     * Element used to display mathematical expression provided by useer
+     */
+    private JTextPane display = new JTextPane();
+
+    /**
+     * Frame element responsible for rendering Graph
+     */
+    private GraphFrame graphFrame;
+
+    /**
+     * input field for minimal value displayed on horizontal axis
+     */
+    private JFormattedTextField fieldMinX;
+
+    /**
+     * input field for maximal value displayed on horizontal axis
+     */
+    private JFormattedTextField fieldMaxX;
+
+    /**
+     * input field for minimal value displayed on vertical axis
+     */
+    private JFormattedTextField fieldMinY;
+
+    /**
+     * input field for maximal value displayed on vertical axis
+     */
+    private JFormattedTextField fieldMaxY;
 
     /**
      * Default parameterless constructor
@@ -98,7 +142,7 @@ public class CalculatorFrame extends JFrame implements ActionListener
             JButton button = new JButton();
             button.setText(v);
             button.addActionListener(this);
-            button.setPreferredSize(regularButtonDimension);
+            button.setPreferredSize(buttonDimension);
             buttons.put(k, button);
             String value = ButtonValues.get(k);
             buttonsDescriptions.put(button, new ButtonDescription(k, v, value));

@@ -12,15 +12,21 @@ public class MathematicalExpressionParser {
      * @return lambda expression equivalent of input mathematical expression
      */
     public static Function<Double, Double> parseMathematicalExpression(final String expression) {
+        //creates anonymous object and call it method parse() which returns created lambda expression:
         return new Object() {
+            //declaration and initialization of variables:
             int pos = -1, ch;
 
+            //get next character from string. if end of string, return -1:
             void nextChar() {
                 ch = (++pos < expression.length()) ? expression.charAt(pos) : -1;
             }
 
+            //skip given character:
             boolean skip(int charToSkip) {
+                //skip all ' ' characters
                 while (ch == ' ') nextChar();
+                //if given character was found, skip it and return true. Else return false:
                 if (ch == charToSkip) {
                     nextChar();
                     return true;
@@ -28,6 +34,7 @@ public class MathematicalExpressionParser {
                 return false;
             }
 
+            //entry point. Search for first character and parse expression. If some problem during parsing occurred, throw exception:
             Function<Double, Double> parse() {
                 nextChar();
                 Function<Double, Double> x = parseExpression();
@@ -35,6 +42,7 @@ public class MathematicalExpressionParser {
                 return x;
             }
 
+            //search for expressions with higher priority. After that handle addition and subtraction:
             Function<Double, Double> parseExpression() {
                 Function<Double, Double> x = parseTerm();
                 while(true) {
@@ -44,6 +52,7 @@ public class MathematicalExpressionParser {
                 }
             }
 
+            //search for expressions with higher priority. After that handle multiplication and division:
             Function<Double, Double> parseTerm() {
                 Function<Double, Double> x = parseFactor();
                 while(true) {
@@ -54,24 +63,35 @@ public class MathematicalExpressionParser {
             }
 
             Function<Double, Double> parseFactor() {
+                //handle unary + and -:
                 if (skip('+')) return parseFactor();
                 if (skip('-')) return negate(parseFactor());
 
                 Function<Double, Double> x;
                 int startPos = this.pos;
+
+                //handle brackets:
                 if (skip('(')) {
                     x = parseExpression();
                     skip(')');
-                } else if ((ch >= '0' && ch <= '9') || ch == '.') {
+                }
+                //handler numbers:
+                else if ((ch >= '0' && ch <= '9') || ch == '.') {
                     while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
                     x = value(Double.parseDouble(expression.substring(startPos, this.pos)));
-                } else if(ch == 'π'){
+                }
+                //handle pi:
+                else if(ch == 'π'){
                     nextChar();
                     x = value(Math.PI);
-                } else if(ch == 'x'){
+                }
+                //handler x parameter:
+                else if(ch == 'x'){
                     nextChar();
                     x = parameter();
-                }else if (ch >= 'a' && ch <= 'z') {
+                }
+                //handle trigonometric functions:
+                else if (ch >= 'a' && ch <= 'z') {
                     while (ch >= 'a' && ch <= 'z') nextChar();
                     String func = expression.substring(startPos, this.pos);
                     x = parseFactor();
@@ -83,7 +103,7 @@ public class MathematicalExpressionParser {
                 } else {
                     throw new RuntimeException("Unexpected: " + (char)ch);
                 }
-
+                //handle exponentiation:
                 if (skip('^')) x = power(x, parseFactor());
 
                 return x;

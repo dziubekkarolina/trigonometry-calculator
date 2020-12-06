@@ -57,11 +57,14 @@ public class Graph extends JPanel {
      * Default parameterless constructor
      */
     public Graph() {
+        //set size:
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
+        //initialize graphics:
         bufferedImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         graphics2D = bufferedImage.createGraphics();
 
+        //initialize properties:
         windowX = 0.0;
         windowY = 0.0;
         windowHeight = 2.0;
@@ -87,48 +90,62 @@ public class Graph extends JPanel {
      */
     @Override
     protected void paintComponent(Graphics g) {
+        //call base method:
         super.paintComponent(g);
 
+        //paint background:
         graphics2D.setColor(Color.WHITE);
         graphics2D.fillRect(0, 0, WIDTH, HEIGHT);
 
+        //initialize lists for calculated values:
         List<Integer> calculatedValuesX = new ArrayList<>();
         List<Integer> calculatedValuesY = new ArrayList<>();
 
+        //iterate over every pixel in width:
         for (int x = 0; x < WIDTH; x++) {
+            //get actual value in certain pixel:
             double currentX = toActualX(x);
 
+            //calculate y for current x:
             double currentY = 0.0;
             if (function != null)
                 currentY = function.apply(currentX);
 
+            //find coordinates of point on graph:
             int panelY = toPanelY(currentY);
 
+            //add calculated values to list of points to draw:
             calculatedValuesX.add(x);
             calculatedValuesY.add(panelY);
         }
 
+        //map lists to int[] for drawPolyline required argument type:
         int[] displayedValuesX = calculatedValuesX.stream().mapToInt(i->i).toArray();
         int[] displayedValuesY = calculatedValuesY.stream().mapToInt(i->i).toArray();
 
+        //draw axis:
         graphics2D.setColor(Color.BLACK);
         int xAxisY = toPanelY(0.0);
         graphics2D.drawLine(0, xAxisY, WIDTH, xAxisY);
         int yAxisX = toPanelX(0.0);
         graphics2D.drawLine(yAxisX, 0, yAxisX, HEIGHT);
 
+        //draw graph with antialiasing and rounding on:
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.setColor(Color.BLUE);
         graphics2D.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
         graphics2D.drawPolyline(displayedValuesX, displayedValuesY, displayedValuesX.length);
 
+        //draw text representation of function in left lower corner:
         graphics2D.setFont(new Font("Segoe UI", Font.PLAIN, 30));
         graphics2D.setColor(Color.BLACK);
         graphics2D.drawString("f(x) = " + functionTextValue, 0.0f, HEIGHT - 10.0f);
 
+        //draw names of axis:
         graphics2D.drawString("x", 0, xAxisY - 10);
         graphics2D.drawString("y", yAxisX + 10, graphics2D.getFontMetrics().getHeight() - 20);
 
+        //draw image:
         g.drawImage(bufferedImage, 0, 0, null);
     }
 
